@@ -1,0 +1,265 @@
+# id
+move_field(_id,'_r._id')
+
+# DC - http://www.loc.gov/marc/marc2dc.html
+
+# contributor
+marc_map(100ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
+marc_map(110ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
+marc_map(111ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
+marc_map(700ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
+marc_map(710ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
+marc_map(711ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
+marc_map(720ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
+
+if exists(_r.dct_contributor)
+    do list(path => _r.dct_contributor)
+        split_field(foaf_name,"%")
+        if exists(foaf_name.1)
+            replace_all(foaf_name.1,"[^0-9-]","")
+            if all_match(foaf_name.1,"\d+(-\d+)")
+                split_field(foaf_name.1,"-")
+                copy_field(foaf_name.1.0,schema_birthDate)
+                copy_field(foaf_name.1.1,schema_deathDate)
+                replace_all(schema_birthDate,'.*(\d{4}).*','$1')
+                replace_all(schema_deathDate,'.*(\d{4}).*','$1')
+            end
+        end
+        join_field(foaf_name)
+    end
+end
+
+# coverage
+marc_map(651,_r.dct_coverage.$append, -join => ' ')
+marc_map(662,_r.dct_coverage.$append, -join => ' ')
+marc_map(751,_r.dct_coverage.$append, -join => ' ')
+marc_map(752,_r.dct_coverage.$append, -join => ' ')
+
+# Date
+marc_map(008/07-10,_r.dct_date.$append)
+marc_map(260c,_r.dct_date.$append)
+marc_map(260g,_r.dct_date.$append)
+
+# Description
+marc_map(501,_r.dct_description.$append, -join => ' ')
+marc_map(502,_r.dct_description.$append, -join => ' ')
+marc_map(503,_r.dct_description.$append, -join => ' ')
+marc_map(504,_r.dct_description.$append, -join => ' ')
+marc_map(505,_r.dct_description.$append, -join => ' ')
+marc_map(507,_r.dct_description.$append, -join => ' ')
+marc_map(508,_r.dct_description.$append, -join => ' ')
+marc_map(509,_r.dct_description.$append, -join => ' ')
+marc_map(51*,_r.dct_description.$append, -join => ' ')
+marc_map(52*,_r.dct_description.$append, -join => ' ')
+marc_map(531,_r.dct_description.$append, -join => ' ')
+marc_map(532,_r.dct_description.$append, -join => ' ')
+marc_map(533,_r.dct_description.$append, -join => ' ')
+marc_map(534,_r.dct_description.$append, -join => ' ')
+marc_map(535,_r.dct_description.$append, -join => ' ')
+marc_map(536,_r.dct_description.$append, -join => ' ')
+marc_map(537,_r.dct_description.$append, -join => ' ')
+marc_map(538,_r.dct_description.$append, -join => ' ')
+marc_map(539,_r.dct_description.$append, -join => ' ')
+marc_map(541,_r.dct_description.$append, -join => ' ')
+marc_map(542,_r.dct_description.$append, -join => ' ')
+marc_map(543,_r.dct_description.$append, -join => ' ')
+marc_map(544,_r.dct_description.$append, -join => ' ')
+marc_map(545,_r.dct_description.$append, -join => ' ')
+marc_map(547,_r.dct_description.$append, -join => ' ')
+marc_map(548,_r.dct_description.$append, -join => ' ')
+marc_map(549,_r.dct_description.$append, -join => ' ')
+marc_map(55*,_r.dct_description.$append, -join => ' ')
+marc_map(56*,_r.dct_description.$append, -join => ' ')
+marc_map(57*,_r.dct_description.$append, -join => ' ')
+marc_map(58*,_r.dct_description.$append, -join => ' ')
+marc_map(59*,_r.dct_description.$append, -join => ' ')
+
+# Format
+marc_map(340,_r.dct_format.$append, -join => ' ')
+marc_map(856q,_r.dct_format.$append, -join => ' ')
+
+# Identifier
+marc_map(020a,_r.dct_identifier.$append)
+marc_map(022a,_r.dct_identifier.$append)
+marc_map(024a,_r.dct_identifier.$append)
+marc_map(856u,_r.dct_identifier.$append)
+
+# Language
+marc_map(008/35-37,_r.dct_language.$append)
+marc_map(041abdefghj,_r.dct_language.$append, -join => ' ')
+marc_map(546,_r.dct_language.$append, -join => ' ')
+
+# Publisher
+marc_map(260ab,_r.dct_publisher.$append, -join => ' ')
+
+# Relation
+marc_map(530,_r.dct_relation.$append, -join => ' ')
+marc_map(76*ot,_r.dct_relation.$append, -join => ' ')
+marc_map(77*ot,_r.dct_relation.$append, -join => ' ')
+marc_map(780ot,_r.dct_relation.$append, -join => ' ')
+marc_map(781ot,_r.dct_relation.$append, -join => ' ')
+marc_map(782ot,_r.dct_relation.$append, -join => ' ')
+marc_map(783ot,_r.dct_relation.$append, -join => ' ')
+marc_map(784ot,_r.dct_relation.$append, -join => ' ')
+marc_map(785ot,_r.dct_relation.$append, -join => ' ')
+marc_map(786ot,_r.dct_relation.$append, -join => ' ')
+marc_map(787ot,_r.dct_relation.$append, -join => ' ')
+
+# Rights
+marc_map(506,_r.dct_rights, -join => ' ')
+marc_map(540,_r.dct_rights, -join => ' ')
+
+# Source
+marc_map(534t,_r.dct_source.$append)
+marc_map(786ot,_r.dct_source.$append, -join => ' ')
+
+# Subject
+marc_map('050',_r.dct_subject.$append, -join => ' ')
+marc_map('060',_r.dct_subject.$append, -join => ' ')
+marc_map('080',_r.dct_subject.$append, -join => ' ')
+marc_map('082',_r.dct_subject.$append, -join => ' ')
+marc_map(600,_r.dct_subject.$append, -join => ' ')
+marc_map(610,_r.dct_subject.$append, -join => ' ')
+marc_map(611,_r.dct_subject.$append, -join => ' ')
+marc_map(630,_r.dct_subject.$append, -join => ' ')
+marc_map(650,_r.dct_subject.$append, -join => ' ')
+marc_map(653,_r.dct_subject.$append, -join => ' ')
+
+# Title
+marc_map(245,_r.dct_title.$append, -join => ' ')
+marc_map(246,_r.dct_title.$append, -join => ' ')
+marc_map(210,_r.dct_title.$append, -join => ' ')
+marc_map(222,_r.dct_title.$append, -join => ' ')
+marc_map(240,_r.dct_title.$append, -join => ' ')
+marc_map(243,_r.dct_title.$append, -join => ' ')
+marc_map(247,_r.dct_title.$append, -join => ' ')
+
+# Type
+marc_map(LDR/6,_r.dct_type.$append)
+lookup(_r.dct_type.*,'fix/leader_type.csv', -delete => 1)
+marc_map(655,_r.dct_type.$append, -join => ' ')
+
+# AccrualMethod
+marc_map(541c,_r.dct_accrualMethod.$append)
+
+# AccrualPolicy
+marc_map(310a,_r.dct_accrualPolicy.$append)
+
+# Audience
+marc_map(521,_r.dct_audience.$append, -join => ' ')
+
+# Coverage Spatial
+marc_map(255,_r.dct_spatial.$append, -join => ' ')
+marc_map('034',_r.dct_spatial.$append, -join => ' ')
+marc_map(522,_r.dct_spatial.$append, -join => ' ')
+marc_map(650z,_r.dct_spatial.$append, -join => ' ')
+marc_map(651,_r.dct_spatial.$append, -join => ' ')
+marc_map(662,_r.dct_spatial.$append, -join => ' ')
+marc_map(751,_r.dct_spatial.$append, -join => ' ')
+marc_map(752,_r.dct_spatial.$append, -join => ' ')
+marc_map('043c',_r.dct_spatial.$append, -join => ' ')
+marc_map('044c',_r.dct_spatial.$append, -join => ' ')
+
+# Coverage Temporal
+marc_map('033a',_r.dct_temporal.$append)
+marc_map(533b,_r.dct_temporal.$append)
+
+# DateCopyrighted
+marc_map(260c,_r.dct_dateCopyrighted.$append)
+marc_map(542g,_r.dct_dateCopyrighted.$append)
+
+# Date Created
+marc_map(260cg,_r.dct_created.$append, -join => ' ')
+marc_map(533d,_r.dct_created.$append, -join => ' ')
+
+# Issued
+marc_map(008/07-10,_r.dct_issued.$append)
+marc_map(260c,_r.dct_issued.$append)
+
+# Modified
+marc_map(046j,_r.dct_modified.$append, -join => ' ')
+
+# Valid
+marc_map(046mn,_r.dct_valid.$append, -join => ' ')
+
+# Abstract
+marc_map(520,_r.dct_abstract, -join => ' ')
+
+# TableOfContents
+marc_map(505,_r.dct_tableOfContents.$append, -join => ' ')
+
+# Extend
+marc_map(300a,_r.dct_extent.$append, -join => ' ')
+marc_map(533e,_r.dct_extent.$append, -join => ' ')
+
+# Medium
+marc_map(340a,_r.dct_medium.$append, -join => ' ')
+
+# Provenance
+marc_map(561,_r.dct_provenance.$append, -join => ' ')
+
+# HasFormat
+marc_map(530,_r.dct_hasFormat.$append, -join => ' ')
+marc_map(776nto,_r.dct_hasFormat.$append, -join => ' ')
+
+# HasPart
+marc_map(774nto,_r.dct_hasPart.$append, -join => ' ')
+
+# HasVersion
+marc_map(775nto,_r.dct_hasVersion.$append, -join => ' ')
+
+# IsFormatOf
+marc_map(530,_r.dct_isFormatOf.$append, -join => ' ')
+marc_map(776nto,_r.dct_isFormatOf.$append, -join => ' ')
+
+# IsPartOf
+marc_map(440,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(490,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(800,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(810,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(811,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(830,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(760,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(773nto,_r.dct_isPartOf.$append, -join => ' ')
+
+# IsReferencedBy
+marc_map(510,_r.dct_isReferencedBy.$append, -join => ' ')
+
+# IsReplacedBy
+marc_map(785nto,_r.dct_isReplacedBy.$append, -join => ' ')
+
+# IsVersionOf
+marc_map(775,_r.dct_isVersionOf.$append, -join => ' ')
+marc_map(786nto,_r.dct_isVersionOf.$append, -join => ' ')
+
+# Replaces
+marc_map(780nto,_r.dct_replaces.$append, -join => ' ')
+
+# Requires
+marc_map(538,_r.dct_requires.$append, -join => ' ')
+
+# AccessRights
+marc_map(506ad,_r.dct_accessRights.$append, -join => ' ')
+marc_map(540ad,_r.dct_accessRights.$append, -join => ' ')
+
+# RightsHolder
+marc_map(542d,_r.dct_rightsHolder.$append, -join => ' ')
+
+# Alternative
+marc_map(130,_r.dct_alternative.$append, -join => ' ')
+marc_map(210,_r.dct_alternative.$append, -join => ' ')
+marc_map(240,_r.dct_alternative.$append, -join => ' ')
+marc_map(242,_r.dct_alternative.$append, -join => ' ')
+marc_map(246,_r.dct_alternative.$append, -join => ' ')
+marc_map(730,_r.dct_alternative.$append, -join => ' ')
+marc_map(740,_r.dct_alternative.$append, -join => ' ')
+
+# Clean
+retain_field(_r)
+move_field(_r,.)
+
+do visitor()
+  unless all_match(scalar,'^http.*')
+    replace_all(scalar,'$','@')
+  end
+end

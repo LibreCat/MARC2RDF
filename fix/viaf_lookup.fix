@@ -1,0 +1,24 @@
+do list(path:dct_contributor)
+   if exists(schema_birthDate)
+    if exists(schema_deathDate)
+     copy_field(foaf_name,lookup.$append)
+     add_field(lookup.$append,' ')
+     copy_field(schema_birthDate,lookup.$append)
+     add_field(lookup.$append,'-')
+     copy_field(schema_deathDate,lookup.$append)
+     join_field(lookup,"")
+     replace_all(lookup,'@','')
+     prepend(lookup,'"')
+     append(lookup,'"')
+
+     rdf_ldf_statements(lookup,url:"http://data.linkeddatafragments.org/viaf",predicate:"http://schema.org/alternateName")
+
+     if exists(lookup.0)
+       move_field(lookup.0,_id)
+     end
+
+     remove_field(lookup)
+
+    end
+   end
+end

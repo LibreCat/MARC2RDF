@@ -1,0 +1,9 @@
+!.gitignore
+.DS_Store
+*.swp
+.build
+_build
+blib
+local
+.perl-version
+cpanfile.snapshot
