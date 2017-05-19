@@ -1,13 +1,15 @@
 # NAME
 
-LibreCat-MARC-RDF - Catmandu tools for processing MARC data into RDF triples
+LibreCat-MARC2RDF - Catmandu tools for processing MARC data into RDF triples
 
 # INSTALL
 
   * Requires Perl 5.14 or better. Hit use [plenv](https://github.com/tokuhirom/plenv) to install a recent perl
 
+```(bash)
   $ plenv local 5.14
   $ cpanm
+```
 
 # USAGE
 
