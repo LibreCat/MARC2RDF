@@ -13,8 +13,11 @@ LibreCat-MARC2RDF - Catmandu tools for processing MARC data into RDF triples
 
 # USAGE
 
-  # Convert the data/camel.mrc file to NTriples
+  Convert the data/camel.mrc file to NTriples:
+
+```(bash)
   $ catmandu convert --fix fix/camel.fix --fix fix/marc_rdf_dct.fix < data/camel.mrc
+```
 
   The file `fix/camel.fix` contains specific fixes to create a `subject` for the RDF
   records. In the Fix file, the MARC `001` field is mapped to the `_id` field, which
@@ -25,7 +28,9 @@ LibreCat-MARC2RDF - Catmandu tools for processing MARC data into RDF triples
   Optionally the file `fix/viaf_lookup.fix` can be added to attempt to lookup author names
   against the VIAF database using [Linked Data Fragments](http://linkeddatafragments.org/):
 
+```(bash)
   $ catmandu convert --type ALEPHSEQ --fix fix/rug01.fix --fix fix/marc_rdf_dct.fix --fix fix/viaf_lookup.fix < data/rug01.aleph
+```
 
   In the example above we used the fact that the 'data/rug01.aleph' file has the Ex Libris
   Aleph sequential format instead of the ISO2709 MARC format.
