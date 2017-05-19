@@ -1,4 +1,0 @@
-marc_map(010a,_id)
-trim(_id)
-uri_encode(_id)
-prepend(_id,"http://lccn.loc.gov/")

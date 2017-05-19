@@ -1,0 +1,10 @@
+---
+importer:
+   default:
+      package: MARC
+exporter:
+   default:
+      package: RDF
+      options:
+        type: NTriples
+...

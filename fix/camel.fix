@@ -1,0 +1,11 @@
+# Fixed required to transform the `camel.mrc` file into RDF
+
+# Map the 001 field into the _id (subject)
+marc_map(001,_id)
+
+# Clean the id
+trim(_id)
+uri_encode(_id)
+
+# Add an uri
+prepend(_id,"http://somewhere.org/")
