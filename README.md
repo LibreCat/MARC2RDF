@@ -46,8 +46,8 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
 
 # DISCLAIMER
 
-* I'm not an RDF expert
-* This project was created as part of the [Catmandu](https://metacpan.org/pod/Catmandu) project as an example how to create a RDF
+* I'm not an RDF/MARC expert, the example mappings provided don't use any of the recent work Bibo and other vocabularies
+* This project was created as part of the [Catmandu](https://metacpan.org/pod/Catmandu) project as an example how to create RDF triples from open data
 * I invite other developers to contribute to this code and provide better mappings
 
 # AUTHOR
