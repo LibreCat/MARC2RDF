@@ -37,6 +37,13 @@ LibreCat-MARC2RDF - Catmandu tools for processing MARC data into RDF triples
 
   Use [Catmandu](https://metacpan.org/pod/Catmandu) for more elaborate fixes and transformations
 
+  Big open catalog data sets are available at the [Library of Congress](http://www.loc.gov/cds/products/marcDist.php).
+
+```(bash)
+  $ wget http://www.loc.gov/cds/downloads/MDSConnect/BooksAll.2014.part01.utf8.gz
+  $ catmandu convert --fix/loc.fix --fix fix/marc_rdf_dct.fix < BooksAll.2014.part01.utf8 > part01.nt
+```
+
 # DISCLAIMER
 
 * I'm not an RDF expert
