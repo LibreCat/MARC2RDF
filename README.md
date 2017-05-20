@@ -1,6 +1,6 @@
 # NAME
 
-LibreCat-MARC2RDF - Catmandu tools for processing MARC data into RDF triples
+LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
 
 # INSTALL
 
