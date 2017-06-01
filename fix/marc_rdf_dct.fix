@@ -79,10 +79,22 @@ marc_map(340,_r.dct_format.$append, -join => ' ')
 marc_map(856q,_r.dct_format.$append, -join => ' ')
 
 # Identifier
-marc_map(020a,_r.dct_identifier.$append)
-marc_map(022a,_r.dct_identifier.$append)
-marc_map(024a,_r.dct_identifier.$append)
-marc_map(856u,_r.dct_identifier.$append)
+marc_map('020a','isbn.$append', -join=>'==')
+marc_map('022a','issn.$append', -join=>'==')
+join_field('isbn','==')
+split_field('isbn','==')
+join_field('issn','==')
+split_field('issn','==')
+replace_all('isbn.*','^\s*([0-9xX-]+).*$','$1')
+replace_all('issn.*','^\s*([0-9xX-]+).*','$1')
+move_field(isbn.*,_r.dct_identifier.$append)
+move_field(issn.*,_r.dct_identifier.$append)
+
+marc_map(856u,url.$append)
+trim(url.*)
+replace_all(url.*,' .*','')
+replace_all(url.*,'[^A-Za-z0-9:;/\.~%#?=&\$\@,+-].*','')
+move_field(url.*,_r.dct_identifier.$append)
 
 # Language
 marc_map(008/35-37,_r.dct_language.$append)
