@@ -8,7 +8,11 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
 
 ```(bash)
   $ plenv local 5.14
+  
+  $ git clone git@github.com:LibreCat/MARC2RDF.git
+  $ cd MARC2RDF
   $ cpanm
+  
 ```
 
 # USAGE
