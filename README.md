@@ -8,11 +8,11 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
 
 ```(bash)
   $ plenv local 5.14
-  
+
   $ git clone git@github.com:LibreCat/MARC2RDF.git
   $ cd MARC2RDF
   $ cpanm
-  
+
 ```
 
 # USAGE
@@ -21,6 +21,12 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
 
 ```(bash)
   $ catmandu convert --fix fix/camel.fix --fix fix/marc_rdf_dct.fix < data/camel.mrc
+```
+
+  Alternative, display not RDF but a YAML output
+
+```(bash)
+  $ catmandu convert --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to YAML < data/camel.mrc
 ```
 
   The file `fix/camel.fix` contains specific fixes to create a `subject` for the RDF
