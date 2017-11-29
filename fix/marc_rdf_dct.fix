@@ -36,7 +36,7 @@ do marc_each()
         copy_field(tmp.date.0,tmp.schema_birthDate)
         copy_field(tmp.date.0,tmp.schema_deathDate)
     end
-    copy_field(tmp,_r.dct_creator.$append)
+    copy_field(tmp,_r.dct_contributor.$append)
   end
 
   # remove temporary field
