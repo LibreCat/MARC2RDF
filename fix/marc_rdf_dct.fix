@@ -3,31 +3,46 @@ move_field(_id,'_r._id')
 
 # DC - http://www.loc.gov/marc/marc2dc.html
 
-# contributor
-marc_map(100ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
-marc_map(110ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
-marc_map(111ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
-marc_map(700ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
-marc_map(710ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
-marc_map(711ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
-marc_map(720ad,_r.dct_contributor.$append.foaf_name, -join => '%', -pluck => 1)
+# creator and contributor need extra processing to parse out the
+# dates
+do marc_each()
 
-if exists(_r.dct_contributor)
-    do list(path => _r.dct_contributor)
-        split_field(foaf_name,"%")
-        if exists(foaf_name.1)
-            replace_all(foaf_name.1,"[^0-9-]","")
-            if all_match(foaf_name.1,"\d+(-\d+)")
-                split_field(foaf_name.1,"-")
-                copy_field(foaf_name.1.0,schema_birthDate)
-                copy_field(foaf_name.1.1,schema_deathDate)
-                replace_all(schema_birthDate,'.*(\d{4}).*','$1')
-                replace_all(schema_deathDate,'.*(\d{4}).*','$1')
-            end
-        end
-        join_field(foaf_name)
+  # creator
+  if all_match(record.0.0,'100|110|111')
+    marc_map('***a',tmp.foaf_name)
+    marc_map('***d',tmp.date)
+    if exists(tmp.date)
+        # Clean the dates
+        replace_all(tmp.date,"[^0-9-]","")
+
+        # Split into birthDate and deathDate
+        split_field(tmp.date,"-")
+        copy_field(tmp.date.0,tmp.schema_birthDate)
+        copy_field(tmp.date.0,tmp.schema_deathDate)
     end
+    copy_field(tmp,_r.dct_creator.$append)
+  end
+
+  # contributor
+  if all_match(record.0.0,'700|710|711|720')
+    marc_map('***a',tmp.foaf_name)
+    marc_map('***d',tmp.date)
+    if exists(tmp.date)
+        # Clean the dates
+        replace_all(tmp.date,"[^0-9-]","")
+
+        # Split into birthDate and deathDate
+        split_field(tmp.date,"-")
+        copy_field(tmp.date.0,tmp.schema_birthDate)
+        copy_field(tmp.date.0,tmp.schema_deathDate)
+    end
+    copy_field(tmp,_r.dct_creator.$append)
+  end
+
+  # remove temporary field
+  remove_field(tmp)
 end
+
 
 # coverage
 marc_map(651,_r.dct_coverage.$append, -join => ' ')
