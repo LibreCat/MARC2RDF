@@ -13,12 +13,14 @@ do marc_each()
     marc_map('***d',tmp.date)
     if exists(tmp.date)
         # Clean the dates
-        replace_all(tmp.date,"[^0-9-]","")
+        replace_all(tmp.date,"\D","")
 
         # Split into birthDate and deathDate
         split_field(tmp.date,"-")
         copy_field(tmp.date.0,tmp.schema_birthDate)
         copy_field(tmp.date.0,tmp.schema_deathDate)
+
+        remove_field(tmp.date)
     end
     copy_field(tmp,_r.dct_creator.$append)
   end
@@ -29,12 +31,14 @@ do marc_each()
     marc_map('***d',tmp.date)
     if exists(tmp.date)
         # Clean the dates
-        replace_all(tmp.date,"[^0-9-]","")
+        replace_all(tmp.date,"\D","")
 
         # Split into birthDate and deathDate
         split_field(tmp.date,"-")
         copy_field(tmp.date.0,tmp.schema_birthDate)
         copy_field(tmp.date.0,tmp.schema_deathDate)
+
+        remove_field(tmp.date)
     end
     copy_field(tmp,_r.dct_contributor.$append)
   end
@@ -54,6 +58,8 @@ marc_map(752,_r.dct_coverage.$append, -join => ' ')
 marc_map(008/07-10,_r.dct_date.$append)
 marc_map(260c,_r.dct_date.$append)
 marc_map(260g,_r.dct_date.$append)
+
+replace_all(_r.dct_date.*,"\D","")
 
 # Description
 marc_map(501,_r.dct_description.$append, -join => ' ')
@@ -195,13 +201,19 @@ marc_map(533b,_r.dct_temporal.$append)
 marc_map(260c,_r.dct_dateCopyrighted.$append)
 marc_map(542g,_r.dct_dateCopyrighted.$append)
 
+replace_all(_r.dct_dateCopyrighted.*,"\D","")
+
 # Date Created
 marc_map(260cg,_r.dct_created.$append, -join => ' ')
 marc_map(533d,_r.dct_created.$append, -join => ' ')
 
+replace_all(_r.dct_created.*,"\D","")
+
 # Issued
 marc_map(008/07-10,_r.dct_issued.$append)
 marc_map(260c,_r.dct_issued.$append)
+
+replace_all(_r.dct_issued.*,"\D","")
 
 # Modified
 marc_map(046j,_r.dct_modified.$append, -join => ' ')
