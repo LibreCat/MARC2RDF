@@ -18,7 +18,7 @@ do marc_each()
         # Split into birthDate and deathDate
         split_field(tmp.date,"-")
         copy_field(tmp.date.0,tmp.schema_birthDate)
-        copy_field(tmp.date.0,tmp.schema_deathDate)
+        copy_field(tmp.date.1,tmp.schema_deathDate)
 
         remove_field(tmp.date)
     end
@@ -36,7 +36,7 @@ do marc_each()
         # Split into birthDate and deathDate
         split_field(tmp.date,"-")
         copy_field(tmp.date.0,tmp.schema_birthDate)
-        copy_field(tmp.date.0,tmp.schema_deathDate)
+        copy_field(tmp.date.1,tmp.schema_deathDate)
 
         remove_field(tmp.date)
     end
