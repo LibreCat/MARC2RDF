@@ -1,10 +1,38 @@
 ---
 importer:
-   default:
+   MARC:
       package: MARC
+   ALEPHSEQ:
+      package: MARC
+      options:
+        type: ALEPHSEQ
+   MARCMaker:
+      package: MARC
+      options:
+        type: MARCMaker
+   MARCXML:
+      package: MARC
+      options:
+        type: XML
 exporter:
    default:
       package: RDF
       options:
         type: NTriples
+   NTriples:
+      package: RDF
+      options:
+        type: NTriples
+   MARCMaker:
+      package: MARC
+      options:
+        type: MARCMaker
+   MARCXML:
+      package: MARC
+      options:
+        type: XML
+   ALEPHSEQ:
+      package: MARC
+      options:
+        type: ALEPHSEQ
 ...

@@ -17,16 +17,22 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
 
 # USAGE
 
+  Display the contents of the MARC file:
+
+```(bash)
+  $ catmandu convert MARC to MARCMaker < data/camel.mrc
+```
+
   Convert the data/camel.mrc file to NTriples:
 
 ```(bash)
-  $ catmandu convert --fix fix/camel.fix --fix fix/marc_rdf_dct.fix < data/camel.mrc
+  $ catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to NTriples < data/camel.mrc
 ```
 
   Alternative, display not RDF but a YAML output
 
 ```(bash)
-  $ catmandu convert --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to YAML < data/camel.mrc
+  $ catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to YAML < data/camel.mrc
 ```
 
   The file `fix/camel.fix` contains specific fixes to create a `subject` for the RDF
@@ -39,7 +45,7 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
   against the VIAF database using [Linked Data Fragments](http://linkeddatafragments.org/):
 
 ```(bash)
-  $ catmandu convert --type ALEPHSEQ --fix fix/rug01.fix --fix fix/marc_rdf_dct.fix --fix fix/viaf_lookup.fix < data/rug01.aleph
+  $ catmandu convert ALEPHSEQ --fix fix/rug01.fix --fix fix/marc_rdf_dct.fix --fix fix/viaf_lookup.fix to NTriples < data/rug01.aleph
 ```
 
   In the example above we used the fact that the 'data/rug01.aleph' file has the Ex Libris
@@ -51,7 +57,7 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
 
 ```(bash)
   $ wget http://www.loc.gov/cds/downloads/MDSConnect/BooksAll.2014.part01.utf8.gz
-  $ catmandu convert --fix/loc.fix --fix fix/marc_rdf_dct.fix < BooksAll.2014.part01.utf8 > part01.nt
+  $ catmandu convert MARC --fix/loc.fix --fix fix/marc_rdf_dct.fix < BooksAll.2014.part01.utf8 > part01.nt
 ```
 
 # DETAILS
@@ -62,16 +68,16 @@ format: [aREF](https://metacpan.org/pod/RDF::aREF)
 To see how MARC looks like without any special conversions execute the command below:
 
 ```(bash)
-  $ catmandu convert to YAML < data/camel.mrc
+  $ catmandu convert MARC to YAML < data/camel.mrc
 ```
 
-The output will procude for every record in the MARC input a YAML document containing the `_id` of
+The output will produce for every record in the MARC input a YAML document containing the `_id` of
 the MARC record and in `record` the MARC data. This `record` is an array of arrays. Mapping are needed
 to transform this array of arrays into the aREF format which is a hash. The Catmandu Fix language
 can be used to transform data in the MARC `record` to aREF fields. E.g.
 
 ```(bash)
-   $ catmandu convert --fix 'marc_map(245,dct_title); remove_field(record)' to YAML <   data/camel.mrc
+   $ catmandu convert MARC --fix 'marc_map(245,dct_title); remove_field(record)' to YAML <   data/camel.mrc
  ---
  _id: 'fol05731351 '
  dct_title: ActivePerl with ASP and ADO /Tobias Martinsson.
@@ -87,7 +93,7 @@ done with Catmandu Fixes. To group all these fixes, they are written in a Fix sc
 a Fix script on the command line all Fix commands in it will be executed.
 
 ```(bash)
-   $ catmandu convert  --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to YAML  < data/camel.mrc
+   $ catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to YAML < data/camel.mrc
 ```
 
 The command above will execute all the fixes in `fix/camel.fix` and `fix/marc_rdf_dct.fix` on
@@ -138,7 +144,7 @@ Exporter defined in `catmandu.yml` RDF/NTriples will be executed which can under
 aREF and transforms it into triples.
 
 ```(bash)
-   $ catmandu convert  --fix fix/camel.fix --fix fix/marc_rdf_dct.fix  < data/camel.mrc
+   $ catmandu convert  MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to NTriples < data/camel.mrc
  _id: http://somewhere.org/fol05882032
  <http://somewhere.org/fol05731351> <http://purl.org/dc/terms/language> "eng" .
  <http://somewhere.org/fol05731351> <http://purl.org/dc/terms/date> "2000" .

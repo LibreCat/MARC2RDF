@@ -13,7 +13,7 @@ do marc_each()
     marc_map('***d',tmp.date)
     if exists(tmp.date)
         # Clean the dates
-        replace_all(tmp.date,"\D","")
+        replace_all(tmp.date,"[^0-9-]","")
 
         # Split into birthDate and deathDate
         split_field(tmp.date,"-")
@@ -31,7 +31,7 @@ do marc_each()
     marc_map('***d',tmp.date)
     if exists(tmp.date)
         # Clean the dates
-        replace_all(tmp.date,"\D","")
+        replace_all(tmp.date,"[^0-9-]","")
 
         # Split into birthDate and deathDate
         split_field(tmp.date,"-")
@@ -60,6 +60,7 @@ marc_map(260c,_r.dct_date.$append)
 marc_map(260g,_r.dct_date.$append)
 
 replace_all(_r.dct_date.*,"\D","")
+uniq(_r.dct_date)
 
 # Description
 marc_map(501,_r.dct_description.$append, -join => ' ')
@@ -212,8 +213,8 @@ replace_all(_r.dct_created.*,"\D","")
 # Issued
 marc_map(008/07-10,_r.dct_issued.$append)
 marc_map(260c,_r.dct_issued.$append)
-
 replace_all(_r.dct_issued.*,"\D","")
+uniq(_r.dct_issued)
 
 # Modified
 marc_map(046j,_r.dct_modified.$append, -join => ' ')
