@@ -109,9 +109,7 @@ dct_created:
 dct_creator:
 - foaf_name: Martinsson, Tobias,@
   schema_birthDate: 1976@
-  schema_deathDate: 1976@
 dct_date:
-- 2000@
 - 2000@
 dct_dateCopyrighted:
 - 2000@
@@ -120,7 +118,6 @@ dct_extent:
 dct_identifier:
 - 0471383147@
 dct_issued:
-- 2000@
 - 2000@
 dct_language:
 - eng@
