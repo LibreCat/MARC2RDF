@@ -6,6 +6,6 @@ on 'test', sub {
 };
 
 requires 'Catmandu','1.0506';
-requires 'Catmandu::MARC','1.11';
+requires 'Catmandu::MARC','1.231';
 requires 'Catmandu::RDF','0.31';
 requires 'RDF::LDF','0.23';
