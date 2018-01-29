@@ -9,14 +9,3 @@ uri_encode(_id)
 
 # Add an uri
 prepend(_id,"http://lib.ugent.be/catalog/rug01:")
-
-# Replace all 650$9 with $2=gtt into a url
-
-do marc_each()
-  marc_spec("650$9$2{650$2=\gtt}",_r.dct_subject.$append, join:'@@@@')
-  marc_spec("650$9$2{650$2=\gtt}",_r.dct_coverage.$append, join:'@@@@')
-end
-
-do visitor(path:_r)
-  replace_all(scalar,"gtt@@@@","http://data.bibliotheken.nl/doc/thes/p")
-end

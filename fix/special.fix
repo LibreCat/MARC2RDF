@@ -1,0 +1,15 @@
+# E.g. use as:
+# catmandu convert ALEPHSEQ 
+#           --fix fix/rug01.fix
+#           --fix fix/special.fix
+#           --fix fix/marc_rdf_dct.fix to NTriples < data/camel.mrc
+
+# Replace all 650$9 with $2=gtt into a url
+do marc_each()
+  marc_spec("650$9$2{650$2=\gtt}",_r.dct_subject.$append, join:'@@@@')
+  marc_spec("650$9$2{650$2=\gtt}",_r.dct_coverage.$append, join:'@@@@')
+end
+
+do visitor(path:_r)
+  replace_all(scalar,"gtt@@@@","http://data.bibliotheken.nl/doc/thes/p")
+end
