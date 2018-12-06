@@ -8,9 +8,15 @@ move_field(_id,'_r._id')
 do marc_each()
 
   # creator
-  if all_match(record.0.0,'100|110|111')
+  if all_match(record.0.0,'100|110|111|600|700|710|711|720')
     marc_map('***a',tmp.foaf_name)
     marc_map('***d',tmp.date)
+    marc_map('***0',tmp._id,split:1)
+
+    # Bit of cleaning of the names
+    replace_all(tmp.foaf_name,"\W+$","")
+
+    # Parse the date into a birthDate and deathDate
     if exists(tmp.date)
         # Clean the dates
         replace_all(tmp.date,"[^0-9-]","")
@@ -22,25 +28,31 @@ do marc_each()
 
         remove_field(tmp.date)
     end
-    copy_field(tmp,_r.dct_creator.$append)
-  end
 
-  # contributor
-  if all_match(record.0.0,'700|710|711|720')
-    marc_map('***a',tmp.foaf_name)
-    marc_map('***d',tmp.date)
-    if exists(tmp.date)
-        # Clean the dates
-        replace_all(tmp.date,"[^0-9-]","")
-
-        # Split into birthDate and deathDate
-        split_field(tmp.date,"-")
-        copy_field(tmp.date.0,tmp.schema_birthDate)
-        copy_field(tmp.date.1,tmp.schema_deathDate)
-
-        remove_field(tmp.date)
+    # Parse the $0 into an authority url + id
+    if exists(tmp._id)
+        # For now only keep the first identifier
+        move_field(tmp._id.0,tmp._id)
+        # $0 should have values like '(authority)number'
+        if all_match(tmp._id,"\(\w+\)\w+")
+            replace_all(tmp._id,"\((\w+)\)(\w+)","$1:$2")
+        else
+            # remove invalid ids
+            remove_field(tmp._id)
+        end
+    else
+        move_field(tmp.foaf_name,tmp)
     end
-    copy_field(tmp,_r.dct_contributor.$append)
+
+    if all_match(record.0.0,'^1')
+        copy_field(tmp,_r.dct_creator.$append)
+    else
+      if all_match(record.0.0,'^6')
+        copy_field(tmp,_r.dct_subject.$append)
+      else
+        copy_field(tmp,_r.dct_contributor.$append)
+      end
+    end
   end
 
   # remove temporary field
@@ -59,7 +71,7 @@ marc_map(008/07-10,_r.dct_date.$append)
 marc_map(260c,_r.dct_date.$append)
 marc_map(260g,_r.dct_date.$append)
 
-replace_all(_r.dct_date.*,"\D","")
+replace_all(_r.dct_date.*,"[^0-9-]","")
 uniq(_r.dct_date)
 
 # Description
@@ -119,7 +131,13 @@ replace_all(url.*,'[^A-Za-z0-9:;/\.~%#?=&\$\@,+-].*','')
 move_field(url.*,_r.dct_identifier.$append)
 
 # Language
-marc_map(008/35-37,_r.dct_language.$append)
+marc_map(008/35-37,lang)
+
+if all_match(lang,"\w{3}")
+    prepend(lang,"http://www.loc.gov/marc/languages/")
+    move_field(lang,_r.dct_language.$append)
+end
+
 marc_map(041abdefghj,_r.dct_language.$append, -join => ' ')
 marc_map(546,_r.dct_language.$append, -join => ' ')
 
@@ -152,26 +170,28 @@ marc_map('050',_r.dct_subject.$append, -join => ' ')
 marc_map('060',_r.dct_subject.$append, -join => ' ')
 marc_map('080',_r.dct_subject.$append, -join => ' ')
 marc_map('082',_r.dct_subject.$append, -join => ' ')
-marc_map(600,_r.dct_subject.$append, -join => ' ')
-marc_map(610,_r.dct_subject.$append, -join => ' ')
-marc_map(611,_r.dct_subject.$append, -join => ' ')
-marc_map(630,_r.dct_subject.$append, -join => ' ')
-marc_map(650,_r.dct_subject.$append, -join => ' ')
-marc_map(653,_r.dct_subject.$append, -join => ' ')
+marc_map(610^0123456789,_r.dct_subject.$append, -join => ' ')
+marc_map(611^0123456789,_r.dct_subject.$append, -join => ' ')
+marc_map(630^0123456789,_r.dct_subject.$append, -join => ' ')
+marc_map(650^0123456789,_r.dct_subject.$append, -join => ' ')
+marc_map(653^0123456789,_r.dct_subject.$append, -join => ' ')
+replace_all(_r.dct_subject.*,"\W+$","")
 
 # Title
-marc_map(245,_r.dct_title.$append, -join => ' ')
-marc_map(246,_r.dct_title.$append, -join => ' ')
-marc_map(210,_r.dct_title.$append, -join => ' ')
-marc_map(222,_r.dct_title.$append, -join => ' ')
-marc_map(240,_r.dct_title.$append, -join => ' ')
-marc_map(243,_r.dct_title.$append, -join => ' ')
-marc_map(247,_r.dct_title.$append, -join => ' ')
+marc_map(245^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(246^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(210^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(222^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(240^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(243^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(247^0123456789,_r.dct_title.$append, -join => ' ')
 
 # Type
 marc_map(LDR/6,_r.dct_type.$append)
 lookup(_r.dct_type.*,'fix/leader_type.csv', -delete => 1)
-marc_map(655,_r.dct_type.$append, -join => ' ')
+marc_map(655^0123456789,_r.dct_type.$append, -split => 1)
+flatten(_r.dct_type)
+replace_all(_r.dct_type.*,"\W+$","")
 
 # AccrualMethod
 marc_map(541c,_r.dct_accrualMethod.$append)
@@ -202,18 +222,18 @@ marc_map(533b,_r.dct_temporal.$append)
 marc_map(260c,_r.dct_dateCopyrighted.$append)
 marc_map(542g,_r.dct_dateCopyrighted.$append)
 
-replace_all(_r.dct_dateCopyrighted.*,"\D","")
+replace_all(_r.dct_dateCopyrighted.*,"[^0-9-]","")
 
 # Date Created
 marc_map(260cg,_r.dct_created.$append, -join => ' ')
 marc_map(533d,_r.dct_created.$append, -join => ' ')
 
-replace_all(_r.dct_created.*,"\D","")
+replace_all(_r.dct_created.*,"[^0-9-]","")
 
 # Issued
 marc_map(008/07-10,_r.dct_issued.$append)
 marc_map(260c,_r.dct_issued.$append)
-replace_all(_r.dct_issued.*,"\D","")
+replace_all(_r.dct_issued.*,"[^0-9-]","")
 uniq(_r.dct_issued)
 
 # Modified
@@ -299,7 +319,7 @@ retain_field(_r)
 move_field(_r,.)
 
 do visitor()
-  unless all_match(scalar,'^http.*')
+  unless all_match(scalar,'^http.*|\w+:\d+')
     replace_all(scalar,'$','@')
   end
 end
