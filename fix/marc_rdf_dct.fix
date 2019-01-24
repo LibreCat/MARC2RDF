@@ -3,6 +3,9 @@ move_field(_id,'_r._id')
 
 # DC - http://www.loc.gov/marc/marc2dc.html
 
+# Language
+marc_map(008/35-37,lang)
+
 # creator and contributor need extra processing to parse out the
 # dates
 do marc_each()
@@ -12,6 +15,7 @@ do marc_each()
     marc_map('***a',tmp.foaf_name)
     marc_map('***d',tmp.date)
     marc_map('***0',tmp._id,split:1)
+    marc_map('***6',tmp.linkage)
 
     # Bit of cleaning of the names
     replace_all(tmp.foaf_name,"\W+$","")
@@ -29,7 +33,17 @@ do marc_each()
         remove_field(tmp.date)
     end
 
-    # Parse the $0 into an authority url + id
+    # If we have a $0 field then
+    #    parse the $0 into an authority url + id
+    # Else
+    #    generate a new id from the record id + authorname
+    # This will create:
+    #   dct_[creator|contributor|subject]:
+    #       _id: http://<record>/<id>/<string>
+    #       foaf_name: ...
+    #       schema_birthDate: ...
+    #       schema_deathDate: ...
+    # like structures
     if exists(tmp._id)
         # For now only keep the first identifier
         move_field(tmp._id.0,tmp._id)
@@ -41,7 +55,9 @@ do marc_each()
             remove_field(tmp._id)
         end
     else
-        move_field(tmp.foaf_name,tmp)
+        copy_field(tmp.foaf_name,x)
+        uri_encode(x)
+        paste(tmp._id,_r._id,'~/',x,join_char:'')
     end
 
     if all_match(record.0.0,'^1')
@@ -53,12 +69,66 @@ do marc_each()
         copy_field(tmp,_r.dct_contributor.$append)
       end
     end
+
+    # remove temporary field
+    remove_field(tmp)
   end
 
-  # remove temporary field
-  remove_field(tmp)
-end
+  # Alternate Graphic Representation
+  if all_match(record.0.0,'880')
+    marc_map(***6/3-5,tmp.linkage)
+    prepend(tmp.linkage,880)
+    marc_map(***6,tmp.linkage_field)
 
+    # Title
+    if all_match(tmp.linkage_field,"^(210|222|240|243|245|246|247)")
+        marc_map(***^0123456789,tmp.val, -join => ' ')
+        paste(_r.dct_title.$append,tmp.val,'~@',lang,join_char:'')
+    end
+
+    # Publisher
+    if all_match(tmp.linkage_field,"^260")
+        marc_map(***ab,tmp.val, -join => ' ')
+        paste(_r.dct_publisher.$append,tmp.val,'~@',lang,join_char:'')
+
+        marc_map(***c,tmp.val)
+        paste(_r.dct_date.$append,tmp.val,'~@',lang,join_char:'')
+
+        marc_map(***g,tmp.val)
+        paste(_r.dct_date.$append,tmp.val,'~@',lang,join_char:'')
+    end
+
+    # Author
+    if all_match(tmp.linkage_field,"^(100|110|111|600|700|710|711|720)")
+        marc_map('***a',tmp.val)
+        paste(tmp.val,tmp.val,'~@',lang,join_char:'')
+        do list(path:_r.dct_creator, var:c)
+            if in(c.linkage,tmp.linkage)
+                move_field(c.foaf_name,c.foaf_name.0)
+                copy_field(tmp.val,c.foaf_name.$prepend)
+                remove_field(c.linkage)
+            end
+        end
+        do list(path:_r.dct_contributor, var:c)
+            if in(c.linkage,tmp.linkage)
+                move_field(c.foaf_name,c.foaf_name.0)
+                copy_field(tmp.val,c.foaf_name.$prepend)
+                remove_field(c.linkage)
+            end
+        end
+        do list(path:_r.dct_subject, var:c)
+            if in(c.linkage,tmp.linkage)
+                move_field(c.foaf_name,c.foaf_name.0)
+                copy_field(tmp.val,c.foaf_name.$prepend)
+                remove_field(c.linkage)
+            end
+        end
+    end
+
+    # remove temporary field
+    remove_field(tmp)
+  end
+end
 
 # coverage
 marc_map(651,_r.dct_coverage.$append, -join => ' ')
@@ -71,7 +141,7 @@ marc_map(008/07-10,_r.dct_date.$append)
 marc_map(260c,_r.dct_date.$append)
 marc_map(260g,_r.dct_date.$append)
 
-replace_all(_r.dct_date.*,"[^0-9-]","")
+replace_all(_r.dct_date.*,"[^[:digit:]-]","")
 uniq(_r.dct_date)
 
 # Description
@@ -175,7 +245,6 @@ marc_map(611^0123456789,_r.dct_subject.$append, -join => ' ')
 marc_map(630^0123456789,_r.dct_subject.$append, -join => ' ')
 marc_map(650^0123456789,_r.dct_subject.$append, -join => ' ')
 marc_map(653^0123456789,_r.dct_subject.$append, -join => ' ')
-replace_all(_r.dct_subject.*,"\W+$","")
 
 # Title
 marc_map(245^0123456789,_r.dct_title.$append, -join => ' ')
@@ -319,7 +388,10 @@ retain_field(_r)
 move_field(_r,.)
 
 do visitor()
-  unless all_match(scalar,'^http.*|\w+:\d+')
+  unless all_match(scalar,'^http.*|\w+:\d+|\@\w{3}$')
     replace_all(scalar,'$','@')
+  end
+  if all_match(scalar,"viaf:")
+    replace_all(scalar,"viaf:","http://viaf.org/viaf/")
   end
 end
