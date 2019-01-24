@@ -106,22 +106,22 @@ do marc_each()
             if in(c.linkage,tmp.linkage)
                 move_field(c.foaf_name,c.foaf_name.0)
                 copy_field(tmp.val,c.foaf_name.$prepend)
-                remove_field(c.linkage)
             end
+            remove_field(c.linkage)
         end
         do list(path:_r.dct_contributor, var:c)
             if in(c.linkage,tmp.linkage)
                 move_field(c.foaf_name,c.foaf_name.0)
                 copy_field(tmp.val,c.foaf_name.$prepend)
-                remove_field(c.linkage)
             end
+            remove_field(c.linkage)
         end
         do list(path:_r.dct_subject, var:c)
             if in(c.linkage,tmp.linkage)
                 move_field(c.foaf_name,c.foaf_name.0)
                 copy_field(tmp.val,c.foaf_name.$prepend)
-                remove_field(c.linkage)
             end
+            remove_field(c.linkage)
         end
     end
 
