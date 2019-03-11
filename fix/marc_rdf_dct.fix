@@ -2,6 +2,7 @@
 move_field(_id,'_r._id')
 
 # DC - http://www.loc.gov/marc/marc2dc.html
+# {See also http://www.bl.uk/bibliographic/pdfs/mappingmarc2basicrdf.pdf for alternative}
 
 # Language
 marc_map(008/35-37,lang)
@@ -145,6 +146,7 @@ replace_all(_r.dct_date.*,"[^[:digit:]-]","")
 uniq(_r.dct_date)
 
 # Description
+marc_map(500,_r.dct_description.$append, -join => ' ')
 marc_map(501,_r.dct_description.$append, -join => ' ')
 marc_map(502,_r.dct_description.$append, -join => ' ')
 marc_map(503,_r.dct_description.$append, -join => ' ')
@@ -348,6 +350,7 @@ marc_map(800,_r.dct_isPartOf.$append, -join => ' ')
 marc_map(810,_r.dct_isPartOf.$append, -join => ' ')
 marc_map(811,_r.dct_isPartOf.$append, -join => ' ')
 marc_map(830,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(852cj,_r.dct_isPartOf.$append, -join => ' ')
 marc_map(760,_r.dct_isPartOf.$append, -join => ' ')
 marc_map(773nto,_r.dct_isPartOf.$append, -join => ' ')
 
@@ -388,7 +391,7 @@ retain_field(_r)
 move_field(_r,.)
 
 do visitor()
-  unless all_match(scalar,'^http.*|\w+:\d+|\@\w{3}$')
+  unless all_match(scalar,'^urn.*|http.*|\w+:\d+|\@\w{3}$')
     replace_all(scalar,'$','@')
   end
   if all_match(scalar,"viaf:")

@@ -36,3 +36,30 @@
 000000071 880   L $$6260-05/(3/r$$aالقاهرة$$bلجنة التأليف والترجمة والنشر$$c١٩٥٦-١٩٧٢
 000000071 880   L $$6700-12/(3/r$$aزيادة، محمد مصطفى$$4مصحح
 000000071 920   L $$abook
+000000455 FMT   L BK
+000000455 LDR   L 00000cam^^2200241u^^4500
+000000455 001   L 000000455
+000000455 003   L BE-GnUNI
+000000455 005   L 20190123155002.0
+000000455 008   L 840418m14831484xx^^^^^^^^^^^^000^0^ara^^
+000000455 040   L $$aBE-GnUNI
+000000455 066   L $$c(3
+000000455 1001  L $$aal-ʿAynī, Badr al-Dīn Maḥmūd b. Aḥmad,$$d1361-1451$$6880-00$$0(viaf)79195897
+000000455 24510 L $$aʿIqd al-Jumān fī Taʾrīkh Ahl al-Zamān$$6880-02
+000000455 260   L $$c1483-1484$$6880-03
+000000455 300   L $$aVolume 2$$aFoilos 222 :$$bNumber of lines per page 31 ;$$cLeaf width 17.2 cm; leaf height 24.5 cm$$6880-04
+000000455 500   L $$aNaskh script. Black ink with red rubrication. Writing surface: 220x140. Missing some folios at the beginning, and the title and copyist's name is added on the first page of the manuscript. Very few correction notes, and there are some comments in the margins throughout the manuscript but not very extensive. Not watermarked Oriental papers. The colophon gives the name of the author (not present on the title page). Most pages are darkened because of the ink, and some of them are illegible. Seal on f.1a: "ACAD LUGD BAT BIBL". The colophon says that the author finished writing (either the book or the copy of the book which that copyist has reproduces) in the 25th of Rabīʿ al-ʾĀkhir 825 AH. Muḥammad b. ʿAbd al-ʿĀl (al-Rahāy?) or (al-Wafāʾī?). Binding: Cardboard bright-yellow and red with a flap tucked under the upper cover and a turanj.
+000000455 60017 L $$aal-ʿAynī, Badr al-Dīn Maḥmūd b. Aḥmad,$$d1361-1451.$$2z$$0(viaf)79195897
+000000455 63007 L $$aʿIqd al-Jumān fī Taʾrīkh Ahl al-Zamān.$$2z$$00855BadrDinCayni.CiqdJuman
+000000455 655 7 L $$aHistoriography.$$2z
+000000455 880   L $$6100-01/(3/r$$aالعيني، بدر الدين محمود بن أحمد بن موسى$$d١٣٦١-١٤٥١$$0(viaf)79195897
+000000455 880   L $$6245-02/(3/r$$aعقد الجمان في تاريخ أهل الزمان
+000000455 880   L $$6260-03/(3/r$$cنسخت في سنة 888 هجرية
+000000455 880   L $$6300-04/(3/r$$aالجزء الثاني$$a222 صفحات$$bعدد السطور بالصفحة 31$$cعرض الصفحة 17.2 سم، طول الصفحة 24.5 سم
+000000455 852   L $$cLeiden University$$jOr. 2365
+000000455 CAT   L $$aMMASLOUH$$b20$$c20190123$$lMML01$$h1530
+000000455 CAT   L $$aMMASLOUH$$b20$$c20190123$$lMML01$$h1535
+000000455 CAT   L $$aMMASLOUH$$b20$$c20190123$$lMML01$$h1541
+000000455 CAT   L $$aMMASLOUH$$b20$$c20190123$$lMML01$$h1550
+000000455 920   L $$amanuscript
+000000455 SID   L $$aZ39$$bLOC

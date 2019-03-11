@@ -7,7 +7,9 @@ usage:
 	@echo "  camel_rdf"
 	@echo "  camel_yaml"
 	@echo "  aleph_rdf"
-
+	@echo "  aleph_yaml"
+	@echo "  mml01_rdf"
+	@echo "  mml01_aleph"
 
 carton:
 	@ carton

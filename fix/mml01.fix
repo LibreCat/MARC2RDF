@@ -9,3 +9,11 @@ uri_encode(_id)
 
 # Add an uri
 prepend(_id,"http://lib.ugent.be/catalog/mml01:")
+
+do marc_each()
+  if marc_has(6300)
+    marc_map(6300,tmp)
+    prepend(tmp,"urn:cts:arabLit:")
+    move_field(tmp,_r.dct_identifier.$append)
+  end
+end
