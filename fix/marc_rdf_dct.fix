@@ -17,13 +17,14 @@ do marc_each()
     marc_map('***d',tmp.date)
     marc_map('***0',tmp._id,split:1)
     marc_map('***6',tmp.linkage)
+    marc_map('***4',tmp.relator)
 
     # Bit of cleaning of the names
     replace_all(tmp.foaf_name,"\W+$","")
 
     # Parse the date into a birthDate and deathDate
     if exists(tmp.date)
-        # Clean the dates
+        # Clean the dates (if required)
         replace_all(tmp.date,"[^0-9-]","")
 
         # Split into birthDate and deathDate
@@ -39,11 +40,16 @@ do marc_each()
     # Else
     #    generate a new id from the record id + authorname
     # This will create:
-    #   dct_[creator|contributor|subject]:
+    #   dct_[name|subject]:
     #       _id: http://<record>/<id>/<string>
     #       foaf_name: ...
     #       schema_birthDate: ...
     #       schema_deathDate: ...
+    #       relator: etd|trl http://www.loc.gov/marc/relators/relaterm.html (see
+    #                later in this Fix how this is used to map the field into
+    #                the correct property)
+    #       type: dct_creator | dc_contributor (see later in this Fix how this
+    #                is used to map the field into the correct property)
     # like structures
     if exists(tmp._id)
         # For now only keep the first identifier
@@ -56,18 +62,22 @@ do marc_each()
             remove_field(tmp._id)
         end
     else
+        # Create an own generic idenfier based on the record number and name...
         copy_field(tmp.foaf_name,x)
         uri_encode(x)
         paste(tmp._id,_r._id,'~/',x,join_char:'')
     end
 
     if all_match(record.0.0,'^1')
-        copy_field(tmp,_r.dct_creator.$append)
+        add_field(tmp.type,dct_creator)
+        copy_field(tmp,_r.dct_name.$append)
     else
       if all_match(record.0.0,'^6')
+        remove_field(tmp.type)
         copy_field(tmp,_r.dct_subject.$append)
       else
-        copy_field(tmp,_r.dct_contributor.$append)
+        add_field(tmp.type,dct_contributor)
+        copy_field(tmp,_r.dct_name.$append)
       end
     end
 
@@ -103,14 +113,7 @@ do marc_each()
     if all_match(tmp.linkage_field,"^(100|110|111|600|700|710|711|720)")
         marc_map('***a',tmp.val)
         paste(tmp.val,tmp.val,'~@',lang,join_char:'')
-        do list(path:_r.dct_creator, var:c)
-            if in(c.linkage,tmp.linkage)
-                move_field(c.foaf_name,c.foaf_name.0)
-                copy_field(tmp.val,c.foaf_name.$prepend)
-            end
-            remove_field(c.linkage)
-        end
-        do list(path:_r.dct_contributor, var:c)
+        do list(path:_r.dct_name, var:c)
             if in(c.linkage,tmp.linkage)
                 move_field(c.foaf_name,c.foaf_name.0)
                 copy_field(tmp.val,c.foaf_name.$prepend)
@@ -142,7 +145,8 @@ marc_map(008/07-10,_r.dct_date.$append)
 marc_map(260c,_r.dct_date.$append)
 marc_map(260g,_r.dct_date.$append)
 
-replace_all(_r.dct_date.*,"[^[:digit:]-]","")
+## Do no attempt to clean the date
+# replace_all(_r.dct_date.*,"[^[:digit:]-]","")
 uniq(_r.dct_date)
 
 # Description
@@ -320,7 +324,7 @@ marc_map(520,_r.dct_abstract, -join => ' ')
 marc_map(505,_r.dct_tableOfContents.$append, -join => ' ')
 
 # Extend
-marc_map(300a,_r.dct_extent.$append, -join => ' ')
+marc_map(300abc,_r.dct_extent.$append, -join => ' ')
 marc_map(533e,_r.dct_extent.$append, -join => ' ')
 
 # Medium
@@ -386,6 +390,11 @@ marc_map(246,_r.dct_alternative.$append, -join => ' ')
 marc_map(730,_r.dct_alternative.$append, -join => ' ')
 marc_map(740,_r.dct_alternative.$append, -join => ' ')
 
+# Parse all the dct_creator and move them to the correct property
+# dct_creator , dc_contributor based on the _r.dct_name.type or
+# marcrel_etd , marcrel_xxx based on the _r.dct_name.relator
+dct_name()
+
 # Clean
 retain_field(_r)
 move_field(_r,.)
@@ -394,7 +403,7 @@ do visitor()
   unless all_match(scalar,'^urn.*|http.*|\w+:\d+|\@\w{3}$')
     replace_all(scalar,'$','@')
   end
-  if all_match(scalar,"viaf:")
-    replace_all(scalar,"viaf:","http://viaf.org/viaf/")
+  if all_match(scalar,"[Vv]iaf:")
+    replace_all(scalar,"[Vv]iaf:","http://viaf.org/viaf/")
   end
 end
