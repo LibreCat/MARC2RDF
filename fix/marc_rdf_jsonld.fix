@@ -1,0 +1,414 @@
+# id
+move_field(_id,'_r.@id')
+
+# DC - http://www.loc.gov/marc/marc2dc.html
+# {See also http://www.bl.uk/bibliographic/pdfs/mappingmarc2basicrdf.pdf for alternative}
+
+# Language
+marc_map(008/35-37,lang)
+
+# creator and contributor need extra processing to parse out the
+# dates
+do marc_each()
+
+  # creator
+  if all_match(record.0.0,'100|110|111|600|700|710|711|720')
+    marc_map('***a',tmp.foaf_name)
+    marc_map('***d',tmp.date)
+    marc_map('***0',tmp.id,split:1)
+    marc_map('***6',tmp.linkage)
+    marc_map('***4',tmp.relator)
+
+    # Bit of cleaning of the names
+    replace_all(tmp.foaf_name,"\W+$","")
+
+    # Parse the date into a birthDate and deathDate
+    if exists(tmp.date)
+        # Clean the dates (if required)
+        replace_all(tmp.date,"[^0-9-]","")
+
+        # Split into birthDate and deathDate
+        split_field(tmp.date,"-")
+        copy_field(tmp.date.0,tmp.schema_birthDate)
+        copy_field(tmp.date.1,tmp.schema_deathDate)
+
+        remove_field(tmp.date)
+    end
+
+    # If we have a $0 field then
+    #    parse the $0 into an authority url + id
+    # Else
+    #    generate a new id from the record id + authorname
+    # This will create:
+    #   dct_[name|subject]:
+    #       id: http://<record>/<id>/<string>
+    #       foaf_name: ...
+    #       schema_birthDate: ...
+    #       schema_deathDate: ...
+    #       relator: etd|trl http://www.loc.gov/marc/relators/relaterm.html (see
+    #                later in this Fix how this is used to map the field into
+    #                the correct property)
+    #       type: dct_creator | dc_contributor (see later in this Fix how this
+    #                is used to map the field into the correct property)
+    # like structures
+    if exists(tmp.id)
+        # For now only keep the first identifier
+        move_field(tmp.id.0,tmp.id)
+        # $0 should have values like '(authority)number'
+        if all_match(tmp.id,"\(\w+\)\w+")
+            replace_all(tmp.id,"\((\w+)\)(\w+)","$1:$2")
+        else
+            # remove invalid ids
+            remove_field(tmp.id)
+        end
+    else
+        # Create an own generic idenfier based on the record number and name...
+        copy_field(tmp.foaf_name,x)
+        uri_encode(x)
+        paste(tmp.id,_r.@id,'~/',x,join_char:'')
+    end
+
+    if all_match(record.0.0,'^1')
+        add_field(tmp.type,dct_creator)
+        copy_field(tmp,_r.dct_name.$append)
+    else
+      if all_match(record.0.0,'^6')
+        remove_field(tmp.type)
+        copy_field(tmp,_r.dct_subject.$append)
+      else
+        add_field(tmp.type,dct_contributor)
+        copy_field(tmp,_r.dct_name.$append)
+      end
+    end
+
+    # remove temporary field
+    remove_field(tmp)
+  end
+
+  # Alternate Graphic Representation
+  if all_match(record.0.0,'880')
+    marc_map(***6/3-5,tmp.linkage)
+    prepend(tmp.linkage,880)
+    marc_map(***6,tmp.linkage_field)
+
+    # Title
+    if all_match(tmp.linkage_field,"^(210|222|240|243|245|246|247)")
+        marc_map(***^0123456789,tmp.val, -join => ' ')
+        paste(_r.dct_title.$append,tmp.val,'~@',lang,join_char:'')
+    end
+
+    # Publisher
+    if all_match(tmp.linkage_field,"^260")
+        marc_map(***ab,tmp.val, -join => ' ')
+        paste(_r.dct_publisher.$append,tmp.val,'~@',lang,join_char:'')
+
+        marc_map(***c,tmp.val)
+        paste(_r.dct_date.$append,tmp.val,'~@',lang,join_char:'')
+
+        marc_map(***g,tmp.val)
+        paste(_r.dct_date.$append,tmp.val,'~@',lang,join_char:'')
+    end
+
+    # Author
+    if all_match(tmp.linkage_field,"^(100|110|111|600|700|710|711|720)")
+        marc_map('***a',tmp.val)
+        paste(tmp.val,tmp.val,'~@',lang,join_char:'')
+        do list(path:_r.dct_name, var:c)
+            if in(c.linkage,tmp.linkage)
+                move_field(c.foaf_name,c.foaf_name.0)
+                copy_field(tmp.val,c.foaf_name.$prepend)
+            end
+            remove_field(c.linkage)
+        end
+        do list(path:_r.dct_subject, var:c)
+            if in(c.linkage,tmp.linkage)
+                move_field(c.foaf_name,c.foaf_name.0)
+                copy_field(tmp.val,c.foaf_name.$prepend)
+            end
+            remove_field(c.linkage)
+        end
+    end
+
+    # remove temporary field
+    remove_field(tmp)
+  end
+end
+
+# coverage
+marc_map(651,_r.dct_coverage.$append, -join => ' ')
+marc_map(662,_r.dct_coverage.$append, -join => ' ')
+marc_map(751,_r.dct_coverage.$append, -join => ' ')
+marc_map(752,_r.dct_coverage.$append, -join => ' ')
+
+# Date
+marc_map(008/07-10,_r.dct_date.$append)
+marc_map(260c,_r.dct_date.$append)
+marc_map(260g,_r.dct_date.$append)
+
+## Do no attempt to clean the date
+# replace_all(_r.dct_date.*,"[^[:digit:]-]","")
+uniq(_r.dct_date)
+
+# Description
+marc_map(500,_r.dct_description.$append, -join => ' ')
+marc_map(501,_r.dct_description.$append, -join => ' ')
+marc_map(502,_r.dct_description.$append, -join => ' ')
+marc_map(503,_r.dct_description.$append, -join => ' ')
+marc_map(504,_r.dct_description.$append, -join => ' ')
+marc_map(505,_r.dct_description.$append, -join => ' ')
+marc_map(507,_r.dct_description.$append, -join => ' ')
+marc_map(508,_r.dct_description.$append, -join => ' ')
+marc_map(509,_r.dct_description.$append, -join => ' ')
+marc_map(51*,_r.dct_description.$append, -join => ' ')
+marc_map(52*,_r.dct_description.$append, -join => ' ')
+marc_map(531,_r.dct_description.$append, -join => ' ')
+marc_map(532,_r.dct_description.$append, -join => ' ')
+marc_map(533,_r.dct_description.$append, -join => ' ')
+marc_map(534,_r.dct_description.$append, -join => ' ')
+marc_map(535,_r.dct_description.$append, -join => ' ')
+marc_map(536,_r.dct_description.$append, -join => ' ')
+marc_map(537,_r.dct_description.$append, -join => ' ')
+marc_map(538,_r.dct_description.$append, -join => ' ')
+marc_map(539,_r.dct_description.$append, -join => ' ')
+marc_map(541,_r.dct_description.$append, -join => ' ')
+marc_map(542,_r.dct_description.$append, -join => ' ')
+marc_map(543,_r.dct_description.$append, -join => ' ')
+marc_map(544,_r.dct_description.$append, -join => ' ')
+marc_map(545,_r.dct_description.$append, -join => ' ')
+marc_map(547,_r.dct_description.$append, -join => ' ')
+marc_map(548,_r.dct_description.$append, -join => ' ')
+marc_map(549,_r.dct_description.$append, -join => ' ')
+marc_map(55*,_r.dct_description.$append, -join => ' ')
+marc_map(56*,_r.dct_description.$append, -join => ' ')
+marc_map(57*,_r.dct_description.$append, -join => ' ')
+marc_map(58*,_r.dct_description.$append, -join => ' ')
+marc_map(59*,_r.dct_description.$append, -join => ' ')
+
+# Format
+marc_map(340,_r.dct_format.$append, -join => ' ')
+marc_map(856q,_r.dct_format.$append, -join => ' ')
+
+# Identifier
+marc_map('020a','isbn.$append', -join=>'==')
+marc_map('022a','issn.$append', -join=>'==')
+join_field('isbn','==')
+split_field('isbn','==')
+join_field('issn','==')
+split_field('issn','==')
+replace_all('isbn.*','^\s*([0-9xX-]+).*$','$1')
+replace_all('issn.*','^\s*([0-9xX-]+).*','$1')
+move_field(isbn.*,_r.dct_identifier.$append)
+move_field(issn.*,_r.dct_identifier.$append)
+
+marc_map(856u,url.$append)
+trim(url.*)
+replace_all(url.*,' .*','')
+replace_all(url.*,'[^A-Za-z0-9:;/\.~%#?=&\$\@,+-].*','')
+move_field(url.*,_r.dct_identifier.$append)
+
+# Language
+marc_map(008/35-37,lang)
+
+if all_match(lang,"\w{3}")
+    prepend(lang,"http://www.loc.gov/marc/languages/")
+    move_field(lang,_r.dct_language.$append)
+end
+
+marc_map(041abdefghj,_r.dct_language.$append, -join => ' ')
+marc_map(546,_r.dct_language.$append, -join => ' ')
+
+# Publisher
+marc_map(260ab,_r.dct_publisher.$append, -join => ' ')
+
+# Relation
+marc_map(530,_r.dct_relation.$append, -join => ' ')
+marc_map(76*ot,_r.dct_relation.$append, -join => ' ')
+marc_map(77*ot,_r.dct_relation.$append, -join => ' ')
+marc_map(780ot,_r.dct_relation.$append, -join => ' ')
+marc_map(781ot,_r.dct_relation.$append, -join => ' ')
+marc_map(782ot,_r.dct_relation.$append, -join => ' ')
+marc_map(783ot,_r.dct_relation.$append, -join => ' ')
+marc_map(784ot,_r.dct_relation.$append, -join => ' ')
+marc_map(785ot,_r.dct_relation.$append, -join => ' ')
+marc_map(786ot,_r.dct_relation.$append, -join => ' ')
+marc_map(787ot,_r.dct_relation.$append, -join => ' ')
+
+# Rights
+marc_map(506,_r.dct_rights, -join => ' ')
+marc_map(540,_r.dct_rights, -join => ' ')
+
+# Source
+marc_map(534t,_r.dct_source.$append)
+marc_map(786ot,_r.dct_source.$append, -join => ' ')
+
+# Subject
+marc_map('050',_r.dct_subject.$append, -join => ' ')
+marc_map('060',_r.dct_subject.$append, -join => ' ')
+marc_map('080',_r.dct_subject.$append, -join => ' ')
+marc_map('082',_r.dct_subject.$append, -join => ' ')
+marc_map(610^0123456789,_r.dct_subject.$append, -join => ' ')
+marc_map(611^0123456789,_r.dct_subject.$append, -join => ' ')
+marc_map(630^0123456789,_r.dct_subject.$append, -join => ' ')
+marc_map(650^0123456789,_r.dct_subject.$append, -join => ' ')
+marc_map(653^0123456789,_r.dct_subject.$append, -join => ' ')
+
+# Title
+marc_map(245^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(246^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(210^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(222^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(240^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(243^0123456789,_r.dct_title.$append, -join => ' ')
+marc_map(247^0123456789,_r.dct_title.$append, -join => ' ')
+
+# Type
+marc_map(LDR/6,_r.dct_type.$append)
+lookup(_r.dct_type.*,'fix/leader_type.csv', -delete => 1)
+marc_map(655^0123456789,_r.dct_type.$append, -split => 1)
+flatten(_r.dct_type)
+replace_all(_r.dct_type.*,"\W+$","")
+
+# AccrualMethod
+marc_map(541c,_r.dct_accrualMethod.$append)
+
+# AccrualPolicy
+marc_map(310a,_r.dct_accrualPolicy.$append)
+
+# Audience
+marc_map(521,_r.dct_audience.$append, -join => ' ')
+
+# Coverage Spatial
+marc_map(255,_r.dct_spatial.$append, -join => ' ')
+marc_map('034',_r.dct_spatial.$append, -join => ' ')
+marc_map(522,_r.dct_spatial.$append, -join => ' ')
+marc_map(650z,_r.dct_spatial.$append, -join => ' ')
+marc_map(651,_r.dct_spatial.$append, -join => ' ')
+marc_map(662,_r.dct_spatial.$append, -join => ' ')
+marc_map(751,_r.dct_spatial.$append, -join => ' ')
+marc_map(752,_r.dct_spatial.$append, -join => ' ')
+marc_map('043c',_r.dct_spatial.$append, -join => ' ')
+marc_map('044c',_r.dct_spatial.$append, -join => ' ')
+
+# Coverage Temporal
+marc_map('033a',_r.dct_temporal.$append)
+marc_map(533b,_r.dct_temporal.$append)
+
+# DateCopyrighted
+marc_map(260c,_r.dct_dateCopyrighted.$append)
+marc_map(542g,_r.dct_dateCopyrighted.$append)
+
+replace_all(_r.dct_dateCopyrighted.*,"[^0-9-]","")
+
+# Date Created
+marc_map(260cg,_r.dct_created.$append, -join => ' ')
+marc_map(533d,_r.dct_created.$append, -join => ' ')
+
+replace_all(_r.dct_created.*,"[^0-9-]","")
+
+# Issued
+marc_map(008/07-10,_r.dct_issued.$append)
+marc_map(260c,_r.dct_issued.$append)
+replace_all(_r.dct_issued.*,"[^0-9-]","")
+uniq(_r.dct_issued)
+
+# Modified
+marc_map(046j,_r.dct_modified.$append, -join => ' ')
+
+# Valid
+marc_map(046mn,_r.dct_valid.$append, -join => ' ')
+
+# Abstract
+marc_map(520,_r.dct_abstract, -join => ' ')
+
+# TableOfContents
+marc_map(505,_r.dct_tableOfContents.$append, -join => ' ')
+
+# Extend
+marc_map(300abc,_r.dct_extent.$append, -join => ' ')
+marc_map(533e,_r.dct_extent.$append, -join => ' ')
+
+# Medium
+marc_map(340a,_r.dct_medium.$append, -join => ' ')
+
+# Provenance
+marc_map(561,_r.dct_provenance.$append, -join => ' ')
+
+# HasFormat
+marc_map(530,_r.dct_hasFormat.$append, -join => ' ')
+marc_map(776nto,_r.dct_hasFormat.$append, -join => ' ')
+
+# HasPart
+marc_map(774nto,_r.dct_hasPart.$append, -join => ' ')
+
+# HasVersion
+marc_map(775nto,_r.dct_hasVersion.$append, -join => ' ')
+
+# IsFormatOf
+marc_map(530,_r.dct_isFormatOf.$append, -join => ' ')
+marc_map(776nto,_r.dct_isFormatOf.$append, -join => ' ')
+
+# IsPartOf
+marc_map(440,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(490,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(800,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(810,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(811,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(830,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(852cj,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(760,_r.dct_isPartOf.$append, -join => ' ')
+marc_map(773nto,_r.dct_isPartOf.$append, -join => ' ')
+
+# IsReferencedBy
+marc_map(510,_r.dct_isReferencedBy.$append, -join => ' ')
+
+# IsReplacedBy
+marc_map(785nto,_r.dct_isReplacedBy.$append, -join => ' ')
+
+# IsVersionOf
+marc_map(775,_r.dct_isVersionOf.$append, -join => ' ')
+marc_map(786nto,_r.dct_isVersionOf.$append, -join => ' ')
+
+# Replaces
+marc_map(780nto,_r.dct_replaces.$append, -join => ' ')
+
+# Requires
+marc_map(538,_r.dct_requires.$append, -join => ' ')
+
+# AccessRights
+marc_map(506ad,_r.dct_accessRights.$append, -join => ' ')
+marc_map(540ad,_r.dct_accessRights.$append, -join => ' ')
+
+# RightsHolder
+marc_map(542d,_r.dct_rightsHolder.$append, -join => ' ')
+
+# Alternative
+marc_map(130,_r.dct_alternative.$append, -join => ' ')
+marc_map(210,_r.dct_alternative.$append, -join => ' ')
+marc_map(240,_r.dct_alternative.$append, -join => ' ')
+marc_map(242,_r.dct_alternative.$append, -join => ' ')
+marc_map(246,_r.dct_alternative.$append, -join => ' ')
+marc_map(730,_r.dct_alternative.$append, -join => ' ')
+marc_map(740,_r.dct_alternative.$append, -join => ' ')
+
+# Parse all the dct_creator and move them to the correct property
+# dct_creator , dc_contributor based on the _r.dct_name.type or
+# marcrel_etd , marcrel_xxx based on the _r.dct_name.relator
+dct_name()
+
+# Declare the namespaces
+add_field(_r.@context.dct,"http://purl.org/dc/terms/")
+add_field(_r.@context.foaf,"http://xmlns.com/foaf/0.1/")
+add_field(_r.@context.marcrel,"http://id.loc.gov/vocabulary/relators/")
+
+# Clean
+retain_field(_r)
+move_field(_r,.)
+
+do visitor()
+  if all_match(key,"_")
+    replace_all(key,"^([^_]+)_","$1:")
+  end
+  if all_match(scalar,"[Vv]iaf:")
+    replace_all(scalar,"[Vv]iaf:","http://viaf.org/viaf/")
+  end
+end
