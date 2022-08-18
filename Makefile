@@ -18,7 +18,7 @@ camel:
 	@ carton exec 'catmandu convert MARC to MARCMaker < data/camel.mrc'
 
 camel_rdf:
-	@ carton exec 'catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to NTriples < data/camel.mrc'
+	@ carton exec 'catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to RDF --type NTriples < data/camel.mrc'
 
 camel_yaml:
 	@ carton exec 'catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to YAML < data/camel.mrc'
@@ -33,4 +33,4 @@ mml01_yaml:
 	@ carton exec 'catmandu convert ALEPHSEQ --fix fix/mml01.fix --fix fix/marc_rdf_dct.fix to YAML < data/mml01.sample'
 
 mml01_rdf:
-	@ carton exec 'catmandu convert ALEPHSEQ --fix fix/mml01.fix --fix fix/marc_rdf_dct.fix to NTriples < data/mml01.sample'
+	@ carton exec 'catmandu convert ALEPHSEQ --fix fix/mml01.fix --fix fix/marc_rdf_dct.fix to RDF --type NTriples < data/mml01.sample'
