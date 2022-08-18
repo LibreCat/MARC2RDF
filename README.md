@@ -35,7 +35,7 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
   $ catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to YAML < data/camel.mrc
 ```
 
-  Alternatuve, create a JSON-LD output (notice we use specialized marc_rdf_jsonld fix file
+  Alternative, create a JSON-LD output (notice we use specialized marc_rdf_jsonld fix file
   for that and request catmandu to serialize in JSON)
 
 ```(bash)
