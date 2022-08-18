@@ -26,7 +26,7 @@ LibreCat-MARC2RDF - Catmandu examples for processing MARC data into RDF triples
   Convert the data/camel.mrc file to NTriples:
 
 ```(bash)
-  $ catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to NTriples < data/camel.mrc
+  $ catmandu convert MARC --fix fix/camel.fix --fix fix/marc_rdf_dct.fix to RDF --type NTriples < data/camel.mrc
 ```
 
   Alternative, display not RDF but a YAML output
